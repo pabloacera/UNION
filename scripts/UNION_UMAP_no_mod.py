@@ -26,25 +26,25 @@ def calculate_accuracies(model, test_data, fitter, training_n, testing_n, f, dic
     # predict and accuraacy for the training the training
     prediction = model.predict(fitter.embedding_)
     n_error_train = prediction[:training_n][prediction[:training_n] == -1].size
-    n_error_outliers = prediction[:training_n][prediction[training_n:] == 1].size
-    f.write('Ac training'+str((training_n-n_error_train)/training_n)+'\n')
-    f.write('Ac mod testing'+str((training_n-n_error_outliers)/training_n)+'\n')
+    n_error_outliers = prediction[training_n:][prediction[training_n:] == 1].size
+    f.write('Ac training'+str((len(prediction[:training_n])-n_error_train)/training_n)+'\n')
+    f.write('Ac mod testing'+str((len(prediction[training_n:])-n_error_outliers)/training_n)+'\n')
     
     prediction = model.predict(test_data)
     n_error_test = prediction[:testing_n][prediction[:testing_n] == -1].size
     n_error_outliers = prediction[testing_n:][prediction[testing_n:] == 1].size
-    f.write('Ac testing no mod'+str((testing_n-n_error_test)/testing_n)+'\n')
-    f.write('Ac testing mod'+str((testing_n-n_error_outliers)/testing_n)+'\n')
+    f.write('Ac testing no mod'+str((len(prediction[:testing_n])-n_error_test)/testing_n)+'\n')
+    f.write('Ac testing mod'+str((len(prediction[testing_n:])-n_error_outliers)/testing_n)+'\n')
     f.write('\n')
     if 'testing_no_mod' not in dic:
-        dic['testing_no_mod'] = [(testing_n-n_error_test)/testing_n]
+        dic['testing_no_mod'] = [(len(prediction[:testing_n])-n_error_test)/testing_n]
     else:
-        dic['testing_no_mod'] = dic['testing_no_mod'] + [(testing_n-n_error_test)/testing_n]
+        dic['testing_no_mod'] = dic['testing_no_mod'] + [(len(prediction[:testing_n])-n_error_test)/testing_n]
     
     if 'testing_mod' not in dic:
-        dic['testing_mod'] = [(testing_n-n_error_test)/testing_n]
+        dic['testing_mod'] = [(len(prediction[testing_n:])-n_error_outliers)/testing_n]
     else:
-        dic['testing_mod'] =  dic['testing_mod'] + [(testing_n-n_error_test)/testing_n]
+        dic['testing_mod'] =  dic['testing_mod'] + [(len(prediction[testing_n:])-n_error_outliers)/testing_n]
     
     return True
 
@@ -61,7 +61,7 @@ def calculate_accuracies_raw(model, test_data, train_data, training_n, testing_n
     prediction = model.predict(train_data)
     
     n_error_train = prediction[:training_n][prediction[:training_n] == -1].size
-    n_error_outliers = prediction[:training_n][prediction[training_n:] == 1].size
+    n_error_outliers = prediction[training_n:][prediction[training_n:] == 1].size
     f.write('Ac raw training'+str((training_n-n_error_train)/training_n)+'\n')
     f.write('Ac raw mod testing'+str((training_n-n_error_outliers)/training_n)+'\n')
     
@@ -99,14 +99,33 @@ motif_mod = [
              path+'motif_mod_CCTGGGGTG_1000.npy'
             ]
 
-number_training = [600,600,600,900,900,900,900,900]
 
+path = '/media/labuser/Data/nanopore/pUC19_nanopolish/numpy/'
+
+
+motif = [
+         #path+'no_mod354_CCAGG_np.npy',
+         path+'no_mod545_CCTGG_np.npy',
+         #path+'no_mod833_CCAGG_np.npy',
+         #path+'no_mod954_CCAGG_np.npy',
+         #path+'no_mod967_CCTGG_np.npy'
+        ]
+
+motif_mod = [
+         #path+'mod354_CCAGG_np.npy',
+         path+'mod545_CCTGG_np.npy',
+         #path+'mod833_CCAGG_np.npy',
+         #path+'mod954_CCAGG_np.npy',
+         #path+'mod967_CCTGG_np.npy'
+        ]
+
+number_training = [900, 900, 900, 900, 900]
 
 LOF = {}
 iso = {}
 envelop = {}
 
-file_out = '/media/labuser/Data/nanopore/DESPERADO/results/baseline_Noy'
+file_out = '/media/labuser/Data/nanopore/UNION/results/baseline_umap_nanopolish'
 f = open(file_out, "w")
 
 for i in range(len(motif)):
@@ -120,28 +139,40 @@ for i in range(len(motif)):
     no_mod_train = no_mod[:number] 
     mod_train = mod[:number]
     
-    x = np.concatenate((no_mod_train,mod_train))
+    x = np.concatenate((no_mod_train, mod_train))
     
-    
+    neighbours = int(len(x)**(1/2))
     ## extract good features
-    fitter = umap.UMAP(n_neighbors =50,
+    fitter = umap.UMAP(n_neighbors=neighbours,
                        set_op_mix_ratio=0.1,
                        n_epochs = 1000,
                        learning_rate=0.5,
-                       min_dist=1,
+                       min_dist=0.1,
                        random_state=42,
                        n_components=4,
-                       metric = 'chebyshev').fit(x.reshape((len(x)), 50),
-                                                )
-
-
-    test_data = fitter.transform(np.concatenate((no_mod[number:], mod[number:])))
+                       metric = 'chebyshev').fit(x.reshape((len(x)), 60)
+                                                 )
+    
+    sns.scatterplot(x=fitter.embedding_[:100,0], 
+                    y=fitter.embedding_[:100,1], 
+                    color="blue", 
+                    label="No modified"
+                    )
+    
+    sns.scatterplot(x=fitter.embedding_[100:,0], 
+                    y=fitter.embedding_[100:,1], 
+                    color="red", 
+                    label="modified"
+                    )
+    
+    
+    test_data = fitter.transform(np.concatenate((no_mod[-100:], mod[-100:])))
     
     model_LocalOutlierFactor = LocalOutlierFactor(
                 n_neighbors=20, contamination=0.2, novelty=True, leaf_size=10)
     
     # define model
-    model_svm = svm.OneClassSVM(nu=0.2, gamma='scale')
+    #model_svm = svm.OneClassSVM(nu=0.2, gamma='scale')
     
     model_isolation =  IsolationForest(contamination=0.2,
                                        random_state=42,
@@ -153,15 +184,15 @@ for i in range(len(motif)):
                                               support_fraction=1)
     
     f.write('LOF'+'\n')
-    calculate_accuracies(model_LocalOutlierFactor, test_data, fitter,number, 100, f, LOF)
+    calculate_accuracies(model_LocalOutlierFactor, test_data, fitter, number, 100, f, LOF)
     
     f.write('Isolation forest'+'\n')
     calculate_accuracies(model_isolation, test_data, fitter, number, 100, f, iso)
     
     f.write('Envelop'+'\n')
     calculate_accuracies(model_EllipticEnvelope, test_data, fitter, number, 100, f, envelop)
-    
-    
+
+    '''
     ### raw data 
     test_data = np.concatenate((no_mod[number:], mod[number:]))
     
@@ -184,5 +215,5 @@ for i in range(len(motif)):
     calculate_accuracies_raw(model_isolation, test_data, x, number, 100, f)
     f.write('Envelop'+'\n')
     calculate_accuracies_raw(model_EllipticEnvelope, test_data, x, number, 100, f)
-
+    '''
 f.close()
