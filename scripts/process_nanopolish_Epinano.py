@@ -234,21 +234,35 @@ def plot_signals_10(KO_signal_filtered_np, WT_signal_filtered_np, save=None):
 
 
 
-def extract_signal_forward(positions, file_complete):
+def extract_signal_forward(positions, file_complete, out):
     '''
     function to extract the right signals from the file
     '''
-    Dataframe_final = pd.DataFrame()
     
+    counter = 0
     for file in pd.read_csv(file_complete, sep='\t', 
                              chunksize=1000000):
-        # scan the 4 curlcakes
-        for contig_f in positions:
-            file = file[file['contig'] == contig_f]
-            position_file = file[file['position'].isin(positions[contig_f])]
-            Dataframe_final = pd.concat([Dataframe_final, position_file])
-    
-    return Dataframe_final
+        counter +=1
+        contig_file = file[file['contig'] == 'cc6m_2244_t7_ecorv']
+        position_file = contig_file[contig_file['position'].isin(positions['cc6m_2244_t7_ecorv'])]
+        if counter == 1:
+            position_file.to_csv(out, sep='\t')
+        else:
+            position_file.to_csv(out, sep='\t', mode='a', header=False)
+        
+        contig_file = file[file['contig'] == 'cc6m_2459_t7_ecorv']
+        position_file = contig_file[contig_file['position'].isin(positions['cc6m_2459_t7_ecorv'])]
+        position_file.to_csv(out, sep='\t', mode='a', header=False)
+        
+        contig_file = file[file['contig'] == 'cc6m_2595_t7_ecorv']
+        position_file = contig_file[contig_file['position'].isin(positions['cc6m_2595_t7_ecorv'])]
+        position_file.to_csv(out, sep='\t', mode='a', header=False)
+
+
+        contig_file = file[file['contig'] == 'cc6m_2709_t7_ecorv']
+        position_file = contig_file[contig_file['position'].isin(positions['cc6m_2709_t7_ecorv'])]
+        position_file.to_csv(out, sep='\t', mode='a', header=False)
+    return True
 
 
 
@@ -310,10 +324,8 @@ if __name__ == '__main__':
             list_f += list(range(i-3,i+3))
         all_positions[contig.split(' ')[0]] = list_f
   
-    
     # We are modeling kmers so I am taking all kmers that contain the modified A
-    KO_signal = extract_signal_forward(all_positions, KO_path)
-    KO_signal.to_csv('/media/labuser/Data/nanopore/Epinanot_IVT/no_mod/eventalign_KO_RRACH.txt', sep='\t')
+    KO_signal = extract_signal_forward(all_positions, KO_path, '/media/labuser/Data/nanopore/Epinanot_IVT/no_mod/eventalign_no_mod_2.txt')
     
     '''
     # it is a bummer that some of the eventalign dont span through all the reference k-mer

@@ -254,9 +254,8 @@ def extract_signal_forward(positions, file_complete):
 
 if __name__ == '__main__':
     
-    KO_path = '/media/labuser/CIMA_maite/Epinano_IVT/non_mod/Non_mod_rep1_eventalign.txt'
-    WT_path = '/media/labuser/CIMA_maite/Epinano_IVT/mod_rep2/nanopolish/mod_rep2_eventalign.txt'
-    
+    KO_path = '/media/labuser/Data/nanopore/Epinanot_IVT/no_mod/eventalign_no_mod_RRACH.txt'
+    WT_path = '/media/labuser/Data/nanopore/Epinanot_IVT/mod/eventalign_mod_RRACH.txt'
     
     Epinano_ref = '/media/labuser/CIMA_maite/Epinano_IVT/GSE124309_FASTA_sequences_of_Curlcakes.fasta'
     reference = {}
@@ -312,8 +311,8 @@ if __name__ == '__main__':
   
     
     # We are modeling kmers so I am taking all kmers that contain the modified A
-    WT_signal = extract_signal_forward(all_positions, WT_path)
-    WT_signal.to_csv('/media/labuser/Data/nanopore/Epinanot_IVT/mod/eventalign_WT_RRACH.txt', sep='\t')
+    KO_signal = extract_signal_forward(all_positions, KO_path)
+    KO_signal.to_csv('/media/labuser/Data/nanopore/Epinanot_IVT/no_mod/eventalign_KO_RRACH.txt', sep='\t')
     
     '''
     # it is a bummer that some of the eventalign dont span through all the reference k-mer
