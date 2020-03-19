@@ -27,14 +27,14 @@ def calculate_accuracies(model, test_data, fitter, training_n, testing_n, f, dic
     prediction = model.predict(fitter.embedding_)
     n_error_train = prediction[:training_n][prediction[:training_n] == -1].size
     n_error_outliers = prediction[training_n:][prediction[training_n:] == 1].size
-    f.write('Ac training'+str((len(prediction[:training_n])-n_error_train)/training_n)+'\n')
-    f.write('Ac mod testing'+str((len(prediction[training_n:])-n_error_outliers)/training_n)+'\n')
+    f.write('Ac training'+str((training_n-n_error_train)/training_n)+'\n')
+    f.write('Ac mod testing'+str((training_n-n_error_outliers)/training_n)+'\n')
     
     prediction = model.predict(test_data)
     n_error_test = prediction[:testing_n][prediction[:testing_n] == -1].size
     n_error_outliers = prediction[testing_n:][prediction[testing_n:] == 1].size
-    f.write('Ac testing no mod'+str((len(prediction[:testing_n])-n_error_test)/testing_n)+'\n')
-    f.write('Ac testing mod'+str((len(prediction[testing_n:])-n_error_outliers)/testing_n)+'\n')
+    f.write('Ac testing no mod'+str((testing_n-n_error_test)/testing_n)+'\n')
+    f.write('Ac testing mod'+str((testing_n-n_error_outliers)/testing_n)+'\n')
     f.write('\n')
     if 'testing_no_mod' not in dic:
         dic['testing_no_mod'] = [(len(prediction[:testing_n])-n_error_test)/testing_n]
@@ -45,9 +45,8 @@ def calculate_accuracies(model, test_data, fitter, training_n, testing_n, f, dic
         dic['testing_mod'] = [(len(prediction[testing_n:])-n_error_outliers)/testing_n]
     else:
         dic['testing_mod'] =  dic['testing_mod'] + [(len(prediction[testing_n:])-n_error_outliers)/testing_n]
-    
-    return True
 
+    return True
 
 
 def calculate_accuracies_raw(model, test_data, train_data, training_n, testing_n, f):
@@ -72,68 +71,6 @@ def calculate_accuracies_raw(model, test_data, train_data, training_n, testing_n
     f.write('Ac raw testing mod'+str((testing_n-n_error_outliers)/testing_n)+'\n')
     f.write('\n')
     return True
-
-
-
-path = '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/1000/'
-
-
-motif = ['/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_CCTGGCCTT_700.npy',
-         '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_CCTGGCGTT_700.npy',
-         '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_CCTGGTATCT_700.npy',
-         path+'motif_CCAGGAACC_1000.npy' ,
-         path+'motif_CCAGGCGTTT_1000.npy' ,
-         path+'motif_CCAGGGTTT_1000.npy' ,
-         path+'motif_CCTGGAAGC_1000.npy',
-         path+'motif_CCTGGGGTG_1000.npy'
-        ]
-
-motif_mod = [
-            '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_mod_CCTGGCCTT_700.npy',
-            '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_mod_CCTGGCGTT_700.npy',
-            '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_mod_CCTGGTATCT_700.npy',
-             path+'motif_mod_CCAGGAACC_1000.npy',
-             path+'motif_mod_CCAGGCGTTT_1000.npy',
-             path+'motif_mod_CCAGGGTTT_1000.npy',
-             path+'motif_mod_CCTGGAAGC_1000.npy',
-             path+'motif_mod_CCTGGGGTG_1000.npy'
-            ]
-
-
-path = '/media/labuser/Data/nanopore/pUC19_nanopolish/numpy/'
-
-
-motif = [
-         #path+'no_mod354_CCAGG_np.npy',
-         path+'no_mod545_CCTGG_np.npy',
-         #path+'no_mod833_CCAGG_np.npy',
-         #path+'no_mod954_CCAGG_np.npy',
-         #path+'no_mod967_CCTGG_np.npy'
-        ]
-
-motif_mod = [
-         #path+'mod354_CCAGG_np.npy',
-         path+'mod545_CCTGG_np.npy',
-         #path+'mod833_CCAGG_np.npy',
-         #path+'mod954_CCAGG_np.npy',
-         #path+'mod967_CCTGG_np.npy'
-        ]
-
-
-motif = [
-       '/media/labuser/Data/nanopore/Epinanot_IVT/no_mod/numpy/pos_1353_cc6m_2244_t7_ecorv.npy'
-        ]
-
-motif_mod = [
-       '/media/labuser/Data/nanopore/Epinanot_IVT/mod/numpy/pos_1353_cc6m_2244_t7_ecorv.npy'
-        ]
-
-
-motif = ['/media/labuser/Data/nanopore/Epinanot_IVT/no_mod/GGACC_35_np.npy']
-motif_mod = ['/media/labuser/Data/nanopore/Epinanot_IVT/mod/GGACC_35_np.npy']
-
-motif = ['/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_GATCCGGCAA_200.npy']
-motif_mod = ['/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_mod_GATCCGGCAA_200.npy']
 
 
 # Epinano IVT motifs
@@ -168,26 +105,26 @@ motif_mod = [path_mod+'pos_1353_cc6m_2244_t7_ecorv.npy',
             ]
 
 
-number_training = [900, 900, 900, 900, 900, 700, 900, 900, 700,900]
+#number_training = [900, 900, 900, 900, 900]
 
 LOF = {}
 iso = {}
 envelop = {}
 
-file_out = '/media/labuser/Data/nanopore/UNION/results/UNION_epinano_variable_10motifs_raw_signal.txt'
+file_out = '/media/labuser/Data/nanopore/UNION/results/UNION_epinano_500_10motifs.txt'
 f = open(file_out, "w")
 
 for i in range(len(motif)):
     
     no_mod = np.load(motif[i])
     mod = np.load(motif_mod[i])
-    number = number_training[i]
+    number = 500
                             
     # split no mod into traininig data and testing one
     # modified does not have to be partition
-    no_mod_train = no_mod[:number] 
-    mod_train = mod[:number]
-
+    no_mod_train = no_mod[:500] 
+    mod_train = mod[:500]
+    
     x = np.concatenate((no_mod_train, mod_train))
         
     '''
@@ -219,27 +156,36 @@ for i in range(len(motif)):
                        metric = 'chebyshev').fit(x.reshape((len(x)), 50)
                                                  )
     '''
-   #fitter = umap.UMAP().fit(x.reshape((len(x)), 50)
-   #                                             )
+    #fitter = umap.UMAP().fit(x.reshape((len(x)), 50),)
     
     '''
-    sns.scatterplot(x=fitter.embedding_[:900,0], 
-                    y=fitter.embedding_[:900,1], 
+    sns.scatterplot(x=fitter.embedding_[:500,0], 
+                    y=fitter.embedding_[:500,1], 
                     color="blue", 
                     label="No modified"
                     )
     
-    sns.scatterplot(x=fitter.embedding_[900:,0], 
-                    y=fitter.embedding_[900:,1], 
+    sns.scatterplot(x=fitter.embedding_[500:,0], 
+                    y=fitter.embedding_[500:,1], 
                     color="red", 
                     label="modified"
                     )
     
+    test_data = fitter.transform(np.concatenate((no_mod[500:600], mod[500:600])))
     
+    sns.scatterplot(x=test_data[:100,0], 
+                    y=test_data[:100,1], 
+                    color="blue", 
+                    label="No modified"
+                    )
     
-    
-    test_data = fitter.transform(np.concatenate((no_mod[-100:], mod[-100:])))
+    sns.scatterplot(x=test_data[100:,0], 
+                    y=test_data[100:,1], 
+                    color="red", 
+                    label="modified"
+                    )
     '''
+    
     model_LocalOutlierFactor = LocalOutlierFactor(
                 n_neighbors=20, contamination=0.2, novelty=True, leaf_size=10)
     
@@ -263,10 +209,10 @@ for i in range(len(motif)):
     
     f.write('Envelop'+'\n')
     calculate_accuracies(model_EllipticEnvelope, test_data, fitter, number, 100, f, envelop)
-    '''
     
+    '''
     ### raw data 
-    test_data = np.concatenate((no_mod[-100:], mod[-100:]))
+    test_data = np.concatenate((no_mod[500:600], mod[500:600])))
     
     model_LocalOutlierFactor = LocalOutlierFactor(
                 n_neighbors=20, contamination=0.2, novelty=True, leaf_size=10)
@@ -287,5 +233,5 @@ for i in range(len(motif)):
     calculate_accuracies_raw(model_isolation, test_data, x, number, 100, f)
     f.write('Envelop'+'\n')
     calculate_accuracies_raw(model_EllipticEnvelope, test_data, x, number, 100, f)
-    
+    '''
 f.close()

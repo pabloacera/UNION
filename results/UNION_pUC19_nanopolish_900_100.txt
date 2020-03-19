@@ -1,0 +1,180 @@
+LOF
+Ac training0.8311111111111111
+Ac mod testing0.4211111111111111
+Ac testing no mod0.55
+Ac testing mod0.55
+
+Isolation forest
+Ac training0.8
+Ac mod testing0.9044444444444445
+Ac testing no mod0.65
+Ac testing mod0.93
+
+Envelop
+Ac training0.8
+Ac mod testing0.9055555555555556
+Ac testing no mod0.78
+Ac testing mod0.9
+
+LOF
+Ac training0.8255555555555556
+Ac mod testing0.4777777777777778
+Ac testing no mod0.65
+Ac testing mod0.48
+
+Isolation forest
+Ac training0.8
+Ac mod testing0.7433333333333333
+Ac testing no mod0.72
+Ac testing mod0.77
+
+Envelop
+Ac training0.8
+Ac mod testing0.7455555555555555
+Ac testing no mod0.77
+Ac testing mod0.76
+
+LOF
+Ac training0.8277777777777777
+Ac mod testing0.3411111111111111
+Ac testing no mod0.59
+Ac testing mod0.47
+
+Isolation forest
+Ac training0.8
+Ac mod testing0.7422222222222222
+Ac testing no mod0.77
+Ac testing mod0.7
+
+Envelop
+Ac training0.8
+Ac mod testing0.7877777777777778
+Ac testing no mod0.76
+Ac testing mod0.79
+
+LOF
+Ac training0.8211111111111111
+Ac mod testing0.4111111111111111
+Ac testing no mod0.61
+Ac testing mod0.45
+
+Isolation forest
+Ac training0.8
+Ac mod testing0.8933333333333333
+Ac testing no mod0.65
+Ac testing mod0.96
+
+Envelop
+Ac training0.8
+Ac mod testing0.9
+Ac testing no mod0.68
+Ac testing mod0.96
+
+LOF
+Ac training0.8211111111111111
+Ac mod testing0.3244444444444444
+Ac testing no mod0.67
+Ac testing mod0.37
+
+Isolation forest
+Ac training0.8
+Ac mod testing0.9144444444444444
+Ac testing no mod0.72
+Ac testing mod0.95
+
+Envelop
+Ac training0.8
+Ac mod testing0.9444444444444444
+Ac testing no mod0.8
+Ac testing mod0.98
+
+LOF
+Ac training0.8155555555555556
+Ac mod testing0.6288888888888889
+Ac testing no mod0.68
+Ac testing mod0.71
+
+Isolation forest
+Ac training0.8
+Ac mod testing0.9055555555555556
+Ac testing no mod0.79
+Ac testing mod0.95
+
+Envelop
+Ac training0.8
+Ac mod testing0.9122222222222223
+Ac testing no mod0.84
+Ac testing mod0.95
+
+LOF
+Ac training0.8133333333333334
+Ac mod testing0.3377777777777778
+Ac testing no mod0.62
+Ac testing mod0.45
+
+Isolation forest
+Ac training0.8
+Ac mod testing0.6877777777777778
+Ac testing no mod0.74
+Ac testing mod0.69
+
+Envelop
+Ac training0.8
+Ac mod testing0.6944444444444444
+Ac testing no mod0.8
+Ac testing mod0.68
+
+LOF
+Ac training0.8155555555555556
+Ac mod testing0.6722222222222223
+Ac testing no mod0.67
+Ac testing mod0.67
+
+Isolation forest
+Ac training0.8
+Ac mod testing0.8366666666666667
+Ac testing no mod0.58
+Ac testing mod0.84
+
+Envelop
+Ac training0.8
+Ac mod testing0.8388888888888889
+Ac testing no mod0.71
+Ac testing mod0.83
+
+LOF
+Ac training0.8144444444444444
+Ac mod testing0.7344444444444445
+Ac testing no mod0.58
+Ac testing mod0.79
+
+Isolation forest
+Ac training0.8
+Ac mod testing0.9077777777777778
+Ac testing no mod0.67
+Ac testing mod0.87
+
+Envelop
+Ac training0.8
+Ac mod testing0.9077777777777778
+Ac testing no mod0.76
+Ac testing mod0.85
+
+LOF
+Ac training0.8177777777777778
+Ac mod testing0.64
+Ac testing no mod0.56
+Ac testing mod0.67
+
+Isolation forest
+Ac training0.8
+Ac mod testing0.8222222222222222
+Ac testing no mod0.63
+Ac testing mod0.84
+
+Envelop
+Ac training0.8
+Ac mod testing0.8377777777777777
+Ac testing no mod0.7
+Ac testing mod0.89
+

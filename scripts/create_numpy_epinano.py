@@ -233,29 +233,45 @@ def plot_signals_10(KO_signal_filtered_np, WT_signal_filtered_np, save=None):
     return True
 
 
-
-def extract_signal_forward(positions, file_complete):
+def extract_signal_forward(positions, file_complete, contig):
     '''
     function to extract the right signals from the file
     '''
-    Dataframe_final = pd.DataFrame()
-    
-    for file in pd.read_csv(file_complete, sep='\t', 
-                             chunksize=1000000):
-        # scan the 4 curlcakes
-        for contig_f in positions:
-            file = file[file['contig'] == contig_f]
-            position_file = file[file['position'].isin(positions[contig_f])]
-            Dataframe_final = pd.concat([Dataframe_final, position_file])
-    
-    return Dataframe_final
-
+    signal = []
+    #unique read name 
+    file = pd.read_csv(file_complete, sep='\t')
+    file = file[file['contig'] == contig]
+    unique_reads = file['read_name'].unique()
+    for read_id in unique_reads:
+        # select part of the file wirh indv. read information
+        read_file = file[file['read_name'] == read_id]
+        position_file = read_file[read_file['position'].isin(positions)]
+        
+        temp_signal = []
+        # Now the smoothing, for every k-mer samples do the smoothing
+        for kmer in position_file['reference_kmer'].unique():
+            kmer_sample_df = position_file[position_file['reference_kmer'] == kmer]['samples']
+            # if there are more than 2 rows then do it row by row
+            if kmer_sample_df.shape[0] > 1:
+                kmer_samples = []
+                for i in range(kmer_sample_df.shape[0]):
+                    temp_samples = kmer_sample_df.iloc[i]
+                    temp_samples = temp_samples.split(',')
+                    temp_samples = [float(i) for i in temp_samples]
+                    kmer_samples += temp_samples
+            else:
+                kmer_samples = ''.join(kmer_sample_df).split(',')
+                kmer_samples = [float(i) for i in kmer_samples]
+            
+            # now that we have the complete list of samples with smooth it
+            temp_signal += smooth_event(kmer_samples, 10)
+        signal.append(temp_signal)
+    return signal
 
 
 if __name__ == '__main__':
     
-    KO_path = '/media/labuser/Data/nanopore/Epinanot_IVT/no_mod/eventalign_no_mod_RRACH.txt'
-    WT_path = '/media/labuser/Data/nanopore/Epinanot_IVT/mod/eventalign_mod_RRACH.txt'
+    KO_path = '/media/labuser/Data/nanopore/Epinanot_IVT/no_mod/eventalign_no_mod_2.txt'
     
     Epinano_ref = '/media/labuser/CIMA_maite/Epinano_IVT/GSE124309_FASTA_sequences_of_Curlcakes.fasta'
     reference = {}
@@ -301,71 +317,43 @@ if __name__ == '__main__':
                 final_index.append(index[i])
         positions[contig] =  positions[contig] + final_index
     
-    #complete with all the positions from the 5-mers and also clean the name of the k-mers
+    
+    #clean the name
     all_positions = {}
     for contig in positions:
-        list_f = []
-        for i in positions[contig]:
-            list_f += list(range(i-3,i+3))
-        all_positions[contig.split(' ')[0]] = list_f
-  
-    
-    # We are modeling kmers so I am taking all kmers that contain the modified A
-    KO_signal = extract_signal_forward(all_positions, KO_path)
-    KO_signal.to_csv('/media/labuser/Data/nanopore/Epinanot_IVT/no_mod/eventalign_KO_RRACH.txt', sep='\t')
-    
-    '''
-    # it is a bummer that some of the eventalign dont span through all the reference k-mer
-    # so I have to filter them out
-    KO_signal_filtered = []
-    for i in KO_signal:
-        if len(i) == 5:
-            KO_signal_filtered.append(i)
-    
-    WT_signal_filtered = []
-    for i in WT_signal:
-        if len(i) == 5:
-            WT_signal_filtered.append(i)
+        all_positions[contig.split(' ')[0]] = positions[contig]
+   
+    for contig in all_positions:
+        for pos in all_positions[contig]:
+            indiv_pos = list(range(pos-2,pos+3))
 
-    
-    #plot_signals(KO_signal_filtered, WT_signal_filtered)
-    
-    ### plot signals with deviation from median
-    # Now every 10 measurements event is converted into 1 median
-    # and the different from other medians is the one represented in the plot
-      
-    plot_signals_sd(KO_signal_filtered, 
-                    WT_signal_filtered)
-                    '/media/labuser/Seagate Expansion Drive/pablo_hec293_IVT/ENST00000301821.10/plots/ENST00000301821_343_sd')
-    
-    
-    #####
-    # Save the signals in numpy objects
-    #####
-    
-    KO_signal_filtered_np = []
-    WT_signal_filtered_np = []
-    
-    #Convert to numpy
-    for i in range(len(KO_signal_filtered)):
-        KO_signal_filtered_np.append([item for sublist in KO_signal_filtered[i] for item in sublist])
-    
-    for i in range(len(WT_signal_filtered)):
-        WT_signal_filtered_np.append([item for sublist in WT_signal_filtered[i] for item in sublist])
-    
-    KO_signal_filtered_np = np.array(KO_signal_filtered_np)
-    WT_signal_filtered_np = np.array(WT_signal_filtered_np)
-    
-    #### Plot the signals with 10 values each event
-    plot_signals_10(KO_signal_filtered_np, 
-                    WT_signal_filtered_np
-                    '/media/labuser/CIMA_maite/Epinano_IVT/plots/GGACC_35'
-                    )
-    # saving the numpy signals 
-    save_np = '/media/labuser/Data/nanopore/Epinanot_IVT'
-    np.save(save_np+'/no_mod/GGACC_35_np', KO_signal_filtered_np)
-    np.save(save_np+'/mod/GGACC_35_np', WT_signal_filtered_np)
-    
-    '''
-
+            # We are modeling kmers so I am taking all kmers that contain the modified A
+            KO_signal = extract_signal_forward(indiv_pos, KO_path, contig)
+            
+            # it is a bummer that some of the eventalign dont span through all the reference k-mer
+            # so I have to filter them out
+            KO_signal_filtered = []
+            for i in KO_signal:
+                if len(i) == 5:
+                    KO_signal_filtered.append(i)
+            #####
+            # Save the signals in numpy objects
+            #####            
+            KO_signal_filtered_np = []
+            
+            #Convert to numpy
+            for i in range(len(KO_signal_filtered)):
+                KO_signal_filtered_np.append([item for sublist in KO_signal_filtered[i] for item in sublist])        
+            
+            KO_signal_filtered_np = np.array(KO_signal_filtered_np)
+            
+            #### Plot the signals with 10 values each event
+            #plot_signals_10(KO_signal_filtered_np, 
+            #                WT_signal_filtered_np
+            #                '/media/labuser/CIMA_maite/Epinano_IVT/plots/GGACC_35'
+            #                )
+            # saving the numpy signals 
+            save_np = '/media/labuser/Data/nanopore/Epinanot_IVT/no_mod/numpy2'
+            np.save(save_np+'/pos_'+str(pos)+'_'+contig, KO_signal_filtered_np)
+           
 
