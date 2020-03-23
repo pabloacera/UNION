@@ -77,7 +77,7 @@ def calculate_accuracies_raw(model, test_data, train_data, training_n, testing_n
 
 def euclidean_distances(signal_data):
     '''
-    remove outliers to have a better fit ti the training data
+    remove outliers to have a better fit to the training data
     '''
     df = pd.DataFrame()
     for i in range(len(signal_data)):
@@ -86,7 +86,8 @@ def euclidean_distances(signal_data):
             temp_column.append(math.sqrt(np.sum((signal_data[i] - signal_data[j]) ** 2)))
         df[i] = temp_column
     return df
-    
+
+
 def accuracy(labels, predictions):
     '''
     calculate accuracy
@@ -101,99 +102,103 @@ def accuracy(labels, predictions):
             correct +=1
     
     return correct/len(labels)
-    
-
-path = '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/1000/'
 
 
-motif = ['/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_CCTGGCCTT_700.npy',
-         '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_CCTGGCGTT_700.npy',
-         '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_CCTGGTATCT_700.npy',
-         path+'motif_CCAGGAACC_1000.npy' ,
-         path+'motif_CCAGGCGTTT_1000.npy' ,
-         path+'motif_CCAGGGTTT_1000.npy' ,
-         path+'motif_CCTGGAAGC_1000.npy',
-         path+'motif_CCTGGGGTG_1000.npy'
+
+
+path = '/media/labuser/Data/nanopore/pUC19_nanopolish/numpy/'
+
+motif = [
+         path+'no_mod354_CCAGG_np.npy',
+         path+'no_mod545_CCTGG_np.npy',
+         path+'no_mod833_CCAGG_np.npy',
+         path+'no_mod954_CCAGG_np.npy',
+         path+'no_mod967_CCTGG_np.npy',
+         path+'no_mod351_CCAGG_r_np.npy',
+         path+'no_mod542_CCTGG_r_np.npy',
+         path+'no_mod830_CCAGG_r_np.npy',
+         path+'no_mod951_CCAGG_r_np.npy',
+         path+'no_mod964_CCTGG_r_np.npy'
         ]
 
-
 motif_mod = [
-            '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_mod_CCTGGCCTT_700.npy',
-            '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_mod_CCTGGCGTT_700.npy',
-            '/media/labuser/Data/nanopore/pUC19/processed/numpy/tombo/n_prepro/5-mers/motif_mod_CCTGGTATCT_700.npy',
-             path+'motif_mod_CCAGGAACC_1000.npy',
-             path+'motif_mod_CCAGGCGTTT_1000.npy',
-             path+'motif_mod_CCAGGGTTT_1000.npy',
-             path+'motif_mod_CCTGGAAGC_1000.npy',
-             path+'motif_mod_CCTGGGGTG_1000.npy'
-            ]
+             path+'mod354_CCAGG_np.npy',
+             path+'mod545_CCTGG_np.npy',
+             path+'mod833_CCAGG_np.npy',
+             path+'mod954_CCAGG_np.npy',
+             path+'mod967_CCTGG_np.npy',
+             path+'mod351_CCAGG_r_np.npy',
+             path+'mod542_CCTGG_r_np.npy',
+             path+'mod830_CCAGG_r_np.npy',
+             path+'mod951_CCAGG_r_np.npy',
+             path+'mod964_CCTGG_r_np.npy'
+        ]
 
-number_training = [600,600,600,900,900,900,900,900]
+number_training = [900, 900, 900, 900, 900, 900, 900, 900, 900, 900]
 
 
 LOF = {}
 iso = {}
 envelop = {}
 
-file_out = '/media/labuser/Data/nanopore/UNION/results/baseline_threshold'
+file_out = '/media/labuser/Data/nanopore/UNION/results/UNOIN_pUC19_nanopolish_thershold_contamination_0.05.txt'
 f = open(file_out, "w")
+    
+thresholds = [0, -1.5, -2, -2.5, -3, -3.5, -4]
 
-
-for i in range(len(motif)):
+for threshold in thresholds:
     
-    f.write(motif[i]+'\n')
-    no_mod = np.load(motif[i])
-    mod = np.load(motif_mod[i])
-    number = number_training[i]
+    median_number = []
+    median_acc = []
+    median_false_posit = []
     
-    # split no mod into traininig data and testing one
-    # modified does not have to be partition
-    no_mod_train = no_mod[:number] 
-    mod_train = mod[:number]
+    for i in range(len(motif)):
     
-    x = np.concatenate((no_mod_train,mod_train))
-    
-    ## extract good features
-    fitter = umap.UMAP(n_neighbors =50,
-                       set_op_mix_ratio=0.1,
-                       n_epochs = 1000,
-                       learning_rate=0.5,
-                       min_dist=1,
-                       random_state=42,
-                       n_components=4,
-                       metric = 'chebyshev').fit(x.reshape((len(x)), 50),
-                                                )
-    
-    test_data = fitter.transform(np.concatenate((no_mod[number:], mod[number:])))
-    
-    model_LocalOutlierFactor = LocalOutlierFactor(
-                n_neighbors=20, contamination=0.2, novelty=True, leaf_size=10)
-    
-    
-    #f.write('LOF'+'\n')
-    #calculate_accuracies(model_LocalOutlierFactor, test_data, fitter, number, 100, f, LOF)
-    
-    model_LocalOutlierFactor.fit(fitter.embedding_[:number])
+        #f.write(motif[i]+'\n')
+        no_mod = np.load(motif[i])
+        mod = np.load(motif_mod[i])
+        number = number_training[i]
         
-    # predict and accuraacy for the training the training
-    prediction = model_LocalOutlierFactor.predict(test_data)
-    labels = np.concatenate((np.ones(100), np.repeat(-1, 100)))
-    f.write('testing accuracy without threshold '+str(accuracy(labels, prediction))+'\n')
+        # split no mod into traininig data and testing one
+        # modified does not have to be partition
+        no_mod_train = no_mod[:number] 
+        mod_train = mod[:number]
+        
+        x = np.concatenate((no_mod_train,mod_train))
+        
+        ## extract good features
+        fitter = umap.UMAP().fit(x.reshape((len(x)), 60))
+        
+        test_data = fitter.transform(np.concatenate((no_mod[number:], mod[number:])))
+        
+        model_EllipticEnvelope =  EllipticEnvelope(contamination=0.05,
+                                                  support_fraction=1)
+        
+        model_EllipticEnvelope.fit(fitter.embedding_[:number])
+        
+        # selected extra-outliers
+        decision = model_EllipticEnvelope.decision_function(test_data)
+        index = []
+        for i in range(len(decision)):
+            if decision[i] < 0.00 and decision[i] > threshold:
+                index.append(i)
+        
+        #get rid of non-confident ones
+        mod_training_filtered = np.delete(test_data, index, axis = 0)
+        #f.write('Number of signals left '+str(len(mod_training_filtered))+'\n')
+        median_number.append(len(mod_training_filtered))
+        labels = np.concatenate((np.ones(100), np.repeat(-1, 100)))
+        labels = np.delete(labels, index, axis = 0)
+        prediction = model_EllipticEnvelope.predict(mod_training_filtered)
+        median_false_posit.append(len(prediction[:100][prediction[:100] == -1]))
+        #f.write('testing accuracy with threshold '+str(accuracy(labels, prediction))+'\n')
+        median_acc.append(accuracy(labels, prediction))
+        
     
-    # selected extra-outliers
-    decision = model_LocalOutlierFactor.decision_function(test_data)
-    index = []
-    for i in range(len(decision)):
-        if decision[i] < 0.02 and decision[i] > -0.1:
-            index.append(i)
-    
-    #get rid of non-confident ones
-    mod_training_filtered = np.delete(test_data, index, axis = 0)
-    f.write('Number of signals left '+str(len(mod_training_filtered))+'\n')
-    labels = np.concatenate((np.ones(100), np.repeat(-1, 100)))
-    labels = np.delete(labels, index, axis = 0)
-    prediction = model_LocalOutlierFactor.predict(mod_training_filtered)
-    f.write('testing accuracy with threshold '+str(accuracy(labels, prediction))+'\n')
-    
+    f.write('Decision boundary '+str(threshold))
+    f.write(' Mean number '+str(np.mean(median_number)))
+    f.write(' Mean acc '+str(np.mean(median_acc)))
+    f.write(' Mean False positives '+str(np.mean(median_false_posit)))
+    f.write('\n')
     
 f.close()

@@ -109,7 +109,7 @@ LOF = {}
 iso = {}
 envelop = {}
 
-file_out = '/media/labuser/Data/nanopore/UNION/results/test.txt'
+file_out = '/media/labuser/Data/nanopore/UNION/results/UNION_pUC19_nanopolish_900_100.txt'
 f = open(file_out, "w")
 
 for i in range(len(motif)):
