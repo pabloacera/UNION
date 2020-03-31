@@ -73,7 +73,7 @@ contaminations = [0.1]
 
 for Contamination in contaminations:
     
-    file_out = '/media/labuser/Data/nanopore/UNION/results/throughput_results/UNION_pUC19_nanopolish_contamination_'+str(Contamination)+'_negative.txt'
+    file_out = '/media/labuser/Data/nanopore/UNION/results/UNION_pUC19_nanopolish_contamination_'+str(Contamination)+'_negative.txt'
     f = open(file_out, "w")
     
     coverages = [900, 700, 500, 250, 100, 50, 25, 10]
@@ -130,56 +130,24 @@ for Contamination in contaminations:
             model_EllipticEnvelope.fit(fitter.embedding_[:len(no_mod_train)])
             
             # calculate training accuracy
-            labels = np.concatenate((np.ones(len(no_mod_train)+number_no_mod + number_mod)))
+            labels = np.ones(len(x))
             prediction = model_EllipticEnvelope.predict(fitter.embedding_)
-            median_false_posit_train.append(len(prediction[:len(no_mod_train)+number_no_mod][prediction[:len(no_mod_train)+number_no_mod] == -1])/len(prediction[:len(no_mod_train)+number_no_mod]))
+            median_false_posit_train.append(len(prediction[prediction == -1])/len(prediction))
             median_train_acc.append(accuracy(labels, prediction))
             
             #get rid of non-confident ones
-            labels = np.concatenate((np.ones(100), np.repeat(-1, 100)))
+            labels = np.ones((200))
             prediction = model_EllipticEnvelope.predict(test_data)
-            median_false_posit_test.append(len(prediction[:100][prediction[:100] == -1])/100)
+            median_false_posit_test.append(len(prediction[prediction == -1])/200)
             #f.write('testing accuracy with threshold '+str(accuracy(labels, prediction))+'\n')
             median_test_acc.append(accuracy(labels, prediction))
-            
-            train.append(np.mean(median_train_acc))
-            test.append(np.mean(median_test_acc))
              
-            f.write('Coverage '+str(coverage)+' Stoichiometry '+str(stoi))
-            f.write(' Training acc '+str(np.mean(median_train_acc)))
-            f.write(' Testing acc '+str(np.mean(median_test_acc)))
-            f.write(' False positives train'+str(np.mean(median_false_posit_test)))
-            f.write(' False positives testing'+str(np.mean(median_false_posit_train)))
-            f.write('\n')
+        f.write('Coverage '+str(coverage))
+        f.write(' Training acc '+str(np.mean(median_train_acc)))
+        f.write(' Testing acc '+str(np.mean(median_test_acc)))
+        f.write(' False positives train'+str(np.mean(median_false_posit_test)))
+        f.write(' False positives testing'+str(np.mean(median_false_posit_train)))
+        f.write('\n')
     
-        training_heat[coverage] = train
-        testing_heat[coverage] = test
-        
     f.close()
     
-    
-    plt.figure(figsize=(13,9))
-    
-    plot = sns.heatmap(training_heat, annot=True, cmap='YlOrRd', yticklabels = stoichiometries)
-    
-    plot.xaxis.tick_top() # x axis on top
-    plt.title('Trainning dataset Coverage vs stoichiometry')
-    plt.savefig('/media/labuser/Data/nanopore/UNION/results/throughput_results/UNION_pUC19_nanopolish_contamination_'+str(Contamination)+'_cover_stoi_train.pdf',
-                format='pdf',
-                dpi=1200,
-                bbox_inches='tight', pad_inches=0)
-    plt.show()
-    
-    ######
-    
-    plt.figure(figsize=(13,9))
-    
-    plot = sns.heatmap(testing_heat, annot=True, cmap='YlOrRd',yticklabels = stoichiometries)
-    
-    plot.xaxis.tick_top() # x axis on top
-    plt.title('Testing dataset Coverage vs stoichiometry')
-    plt.savefig('/media/labuser/Data/nanopore/UNION/results/throughput_results/UNION_pUC19_nanopolish_contamination_'+str(Contamination)+'_cover_stoi_test.pdf',
-                format='pdf',
-                dpi=1200,
-                bbox_inches='tight', pad_inches=0)
-    plt.show()
